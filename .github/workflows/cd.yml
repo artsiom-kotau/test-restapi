@@ -77,7 +77,7 @@ jobs:
         id: task-def
         uses: aws-actions/amazon-ecs-render-task-definition@v1
         with:
-          task-definition: task-definition.json
+          task-definition: .github/workflows/task-definition.json
           container-name: sample-app
           image: ${{ steps.build-image.outputs.image }}
 
@@ -85,6 +85,6 @@ jobs:
         uses: aws-actions/amazon-ecs-deploy-task-definition@v1
         with:
           task-definition: ${{ steps.task-def.outputs.task-definition }}
-          service: sample-app-service
-          cluster: default
+          service: RestApiService
+          cluster: RestApiCluster
           wait-for-service-stability: true
