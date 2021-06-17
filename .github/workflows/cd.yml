@@ -51,13 +51,19 @@ jobs:
 
       - name: Build, tag, and push image to Amazon ECR
         id: build-image
+        uses: satackey/action-docker-layer-caching@v0.0.11
+        # Ignore the failure of a step and avoid terminating the job.
+        continue-on-error: true
+      - uses: actions/cache@v1
+        with:
+          path: ~/.m2/repository
+          key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
+          restore-keys: |
+            ${{ runner.os }}-maven-
         env:
           ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
           ECR_REPOSITORY: restapi
           IMAGE_TAG: ${{ github.sha }}
-#        uses: satackey/action-docker-layer-caching@v0.0.11
-#        # Ignore the failure of a step and avoid terminating the job.
-#        continue-on-error: true
         run: |
           # Build a docker container and
           # push it to ECR so that it can
