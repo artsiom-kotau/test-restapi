@@ -72,19 +72,32 @@ jobs:
           mvn spring-boot:build-image -Dspring-boot.build-image.imageName=$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
           docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
           echo "::set-output name=image::$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG"
+          docker push $ECR_REGISTRY/$ECR_REPOSITORY:latest
+          echo "::set-output name=image::$ECR_REGISTRY/$ECR_REPOSITORY:latest"
 
-      - name: Fill in the new image ID in the Amazon ECS task definition
-        id: task-def
-        uses: aws-actions/amazon-ecs-render-task-definition@v1
-        with:
-          task-definition: .github/workflows/task-definition.json
-          container-name: sample-app
-          image: ${{ steps.build-image.outputs.image }}
+      - name:  Create beans talk configuration file
+        id: create elastic-beanstalk file
+        env:
+          ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+          ECR_REPOSITORY: restapi
+          IMAGE_TAG: latest
 
-      - name: Deploy Amazon ECS task definition
-        uses: aws-actions/amazon-ecs-deploy-task-definition@v1
+        - uses: finnp/create-file-action@master
+            env:
+              FILE_NAME: "Dockerrun.aws.json"
+              FILE_CONTENT: "{ \"AWSEBDockerrunVersion\": \"1\", \"Image\": { \"Name\": \"324017272082.dkr.ecr.eu-central-1.amazonaws.com/restapi:latest\" }, \"Ports\": [ { \"ContainerPort\": \"8080\" } ] }"
+
+
+
+
+      - name: Deploy to EB
+        uses: einaregilsson/beanstalk-deploy@v16
         with:
-          task-definition: ${{ steps.task-def.outputs.task-definition }}
-          service: RestApiService
-          cluster: RestApiCluster
-          wait-for-service-stability: true
+          aws_access_key: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws_secret_key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          application_name: RestApiStageApp
+          environment_name: RestApiStageApp-env
+          region: eu-central-1
+          deployment_package: Dockerrun.aws.json
+
+
