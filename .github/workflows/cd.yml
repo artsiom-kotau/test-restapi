@@ -80,10 +80,14 @@ jobs:
         id: create_elastic_beanstalk_file
         uses: finnp/create-file-action@master
         env:
-          FILE_NAME: "Dockerrun.aws.json"
+          FILE_NAME: Dockerrun.aws.json
           FILE_CONTENT: "{ \"AWSEBDockerrunVersion\": \"1\", \"Image\": { \"Name\": \"324017272082.dkr.ecr.eu-central-1.amazonaws.com/restapi:latest\" }, \"Ports\": [ { \"ContainerPort\": \"8080\" } ] }"
 
+      - name: Generate deployment package
+        run: tail -n 1000 Dockerrun.aws.json
 
+      - name: Generate deployment package
+        run: zip -r deploy.zip Dockerrun.aws.json
 
 
       - name: Deploy to EB
@@ -94,7 +98,7 @@ jobs:
           application_name: RestApiStageApp
           environment_name: RestApiStageApp-env
           region: eu-central-1
-          version_label: 12
-          deployment_package: Dockerrun.aws.json
+          version_label: RestApiStageApp-stage
+          deployment_package: deploy.zip
 
 
