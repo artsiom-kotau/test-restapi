@@ -76,7 +76,7 @@ jobs:
           echo "::set-output name=image::$ECR_REGISTRY/$ECR_REPOSITORY:latest"
 
       - name:  Create beans talk configuration file
-        id: create elastic beanstalk file
+        id: create_elastic_beanstalk_file
         uses: finnp/create-file-action@master
         env:
           FILE_NAME: "Dockerrun.aws.json"
