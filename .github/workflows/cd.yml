@@ -77,15 +77,10 @@ jobs:
 
       - name:  Create beans talk configuration file
         id: create elastic-beanstalk file
+        uses: finnp/create-file-action@master
         env:
-          ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
-          ECR_REPOSITORY: restapi
-          IMAGE_TAG: latest
-
-        - uses: finnp/create-file-action@master
-            env:
-              FILE_NAME: "Dockerrun.aws.json"
-              FILE_CONTENT: "{ \"AWSEBDockerrunVersion\": \"1\", \"Image\": { \"Name\": \"324017272082.dkr.ecr.eu-central-1.amazonaws.com/restapi:latest\" }, \"Ports\": [ { \"ContainerPort\": \"8080\" } ] }"
+          FILE_NAME: "Dockerrun.aws.json"
+          FILE_CONTENT: "{ \"AWSEBDockerrunVersion\": \"1\", \"Image\": { \"Name\": \"324017272082.dkr.ecr.eu-central-1.amazonaws.com/restapi:latest\" }, \"Ports\": [ { \"ContainerPort\": \"8080\" } ] }"
 
 
 
